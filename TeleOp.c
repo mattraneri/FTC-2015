@@ -27,6 +27,7 @@
 
 #include "JoystickDriver.c"  //Include file to "handle" the Bluetooth messages.
 #include "controllers.c"
+#include "globals.c"
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,6 +46,14 @@ void initializeRobot()
   // Place code here to sinitialize servos to starting positions.
   // Sensors are automatically configured and setup by ROBOTC. They may need a brief time to stabilize.
 
+	//Initialize joystick values
+	for(int i = 0; i < 12; i++) {
+		controller1_buttons[i] = false;
+	}
+
+	for(int i = 0; i < 12; i++) {
+		controller2_buttons[i] = false;
+	}
   return;
 }
 
