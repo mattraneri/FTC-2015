@@ -5,3 +5,13 @@
 
 static bool controller1_buttons[12];
 static bool controller2_buttons[12];
+
+static int threshold;
+
+static int ImotorFL;
+static int ImotorBL;
+static int ImotorFR;
+static int ImotorBR;
+static int IservoCollection;
+static int IservoLatch;
+static int IservoArm;

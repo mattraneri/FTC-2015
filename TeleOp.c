@@ -26,8 +26,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "JoystickDriver.c"  //Include file to "handle" the Bluetooth messages.
-#include "controllers.c"
 #include "globals.c"
+#include "controllers.c"
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,6 +46,8 @@ void initializeRobot()
   // Place code here to sinitialize servos to starting positions.
   // Sensors are automatically configured and setup by ROBOTC. They may need a brief time to stabilize.
 
+	threshold = 10;
+
 	//Initialize joystick values
 	for(int i = 0; i < 12; i++) {
 		controller1_buttons[i] = false;
@@ -55,6 +57,29 @@ void initializeRobot()
 		controller2_buttons[i] = false;
 	}
   return;
+}
+
+
+void LoadValues() {
+	motor[motorFL] = ImotorFL;
+	motor[motorFR] = ImotorFR;
+	motor[motorBR] = ImotorBR;
+	motor[motorBL] = ImotorBL;
+	servo[servoLatch] = IservoLatch;
+	servo[servoCollection] = IservoCollection;
+	servo[servoArm] = IservoArm;
+}
+
+
+void updateValues() {
+	if(abs(joystick.joy1_y1) > threshold) {
+		ImotorFL = joystick.joy1_y1;
+		ImotorBL = joystick.joy1_y1;
+	}
+	if(abs(joystick.joy1_y2) > threshold) {
+		ImotorFR = joystick.joy1_y2;
+		ImotorBL = joystick.joy1_y2;
+	}
 }
 
 
@@ -70,8 +95,13 @@ task main()
 
   waitForStart();   // wait for start of tele-op phase
 
-  while (true)
-  {
+  while (true) {
+  	//Load controller values into global array for parsing
   	readControllers();
+
+
+
+  	//Load values to set robot into motion
+  	LoadValues();
   }
 }
