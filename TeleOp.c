@@ -63,13 +63,6 @@ void LoadValues() {
 	servo[servoArm] = IservoArm;
 }
 
-//Define booleans for toggle buttons
-
-//Button 0 toggles latch
-bool wasLastPressed0 = false;
-//Button 8 toggles collection system
-bool wasLastPressed8 = false;
-
 void toggleLatch() {
 
 }
@@ -92,16 +85,7 @@ void updateValues() {
 		ImotorBR = 0;
 	}
 
-	if(joy1Btn(8) && wasLastPressed8 ==  false) {
-		wasLastPressed8 = true;
-	} else if(!joy1Btn(8) && wasLastPressed8 == true) {
-		wasLastPressed8 = false;
-		writeDebugStreamLine("Pressed");
-		if(IservoCollection != 255)
-			IservoCollection = 127;
-		else
-			IservoCollection = 255;
-	}
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,10 +101,13 @@ task main()
   waitForStart();   // wait for start of tele-op phase
 
   while (true) {
+  	getJoystickSettings(joystick);
 
   	//Parse input retrieved from readControllers
   	updateValues();
-
+		if(joy1Btn(5)) {
+			IservoCollection = 127;
+		}
   	//Load values to set robot into motion
   	LoadValues();
   }
