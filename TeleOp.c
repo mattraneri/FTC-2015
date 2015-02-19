@@ -1,11 +1,11 @@
 #pragma config(Hubs,  S1, HTMotor,  HTServo,  HTMotor,  HTMotor)
 #pragma config(Sensor, S1,     ,               sensorI2CMuxController)
-#pragma config(Motor,  mtr_S1_C1_1,     motorFL,       tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C1_1,     motorFL,       tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C1_2,     motorBL,       tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C3_1,     motorLiftLeft, tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C3_2,     motorLiftRight, tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_1,     motorFR,       tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_2,     motorBR,       tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C4_2,     motorBR,       tmotorTetrix, openLoop, reversed)
 #pragma config(Servo,  srvo_S1_C2_1,    servoCollection,      tServoContinuousRotation)
 #pragma config(Servo,  srvo_S1_C2_2,    servoLatch,           tServoStandard)
 #pragma config(Servo,  srvo_S1_C2_3,    servoArm,             tServoContinuousRotation)
@@ -27,7 +27,6 @@
 
 #include "JoystickDriver.c"  //Include file to "handle" the Bluetooth messages.
 #include "globals.c"
-#include "controllers.c"
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,15 +47,9 @@ void initializeRobot()
 
 	threshold = 10;
 
-	//Initialize joystick values
-	for(int i = 0; i < 12; i++) {
-		controller1_buttons[i] = false;
-	}
+	IservoCollection = 255;
 
-	for(int i = 0; i < 12; i++) {
-		controller2_buttons[i] = false;
-	}
-  return;
+	IservoArm = 127;
 }
 
 
@@ -70,7 +63,12 @@ void LoadValues() {
 	servo[servoArm] = IservoArm;
 }
 
-bool wasLastPressed = false;
+//Define booleans for toggle buttons
+
+//Button 0 toggles latch
+bool wasLastPressed0 = false;
+//Button 8 toggles collection system
+bool wasLastPressed8 = false;
 
 void toggleLatch() {
 
@@ -82,17 +80,27 @@ void updateValues() {
 	if(abs(joystick.joy1_y1) > threshold) {
 		ImotorFL = joystick.joy1_y1;
 		ImotorBL = joystick.joy1_y1;
+	} else {
+		ImotorFL = 0;
+		ImotorBL = 0;
 	}
 	if(abs(joystick.joy1_y2) > threshold) {
 		ImotorFR = joystick.joy1_y2;
 		ImotorBR = joystick.joy1_y2;
+	} else {
+		ImotorFR = 0;
+		ImotorBR = 0;
 	}
 
-	if(controller1_buttons[0] && wasLastPressed ==  false) {
-		wasLastPressed = true;
-		toggleLatch();
-	} else if(!controller1_buttons[0] && wasLastPressed == true) {
-		wasLastPressed = false;
+	if(joy1Btn(8) && wasLastPressed8 ==  false) {
+		wasLastPressed8 = true;
+	} else if(!joy1Btn(8) && wasLastPressed8 == true) {
+		wasLastPressed8 = false;
+		writeDebugStreamLine("Pressed");
+		if(IservoCollection != 255)
+			IservoCollection = 127;
+		else
+			IservoCollection = 255;
 	}
 }
 
@@ -109,8 +117,6 @@ task main()
   waitForStart();   // wait for start of tele-op phase
 
   while (true) {
-  	//Load controller values into global array for parsing
-  	readControllers();
 
   	//Parse input retrieved from readControllers
   	updateValues();
