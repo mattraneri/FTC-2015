@@ -70,18 +70,31 @@ void LoadValues() {
 	servo[servoArm] = IservoArm;
 }
 
+bool wasLastPressed = false;
+
+void toggleLatch() {
+
+}
 
 void updateValues() {
+
+	//Movement of the robot.
 	if(abs(joystick.joy1_y1) > threshold) {
 		ImotorFL = joystick.joy1_y1;
 		ImotorBL = joystick.joy1_y1;
 	}
 	if(abs(joystick.joy1_y2) > threshold) {
 		ImotorFR = joystick.joy1_y2;
-		ImotorBL = joystick.joy1_y2;
+		ImotorBR = joystick.joy1_y2;
+	}
+
+	if(controller1_buttons[0] && wasLastPressed ==  false) {
+		wasLastPressed = true;
+		toggleLatch();
+	} else if(!controller1_buttons[0] && wasLastPressed == true) {
+		wasLastPressed = false;
 	}
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -99,7 +112,8 @@ task main()
   	//Load controller values into global array for parsing
   	readControllers();
 
-
+  	//Parse input retrieved from readControllers
+  	updateValues();
 
   	//Load values to set robot into motion
   	LoadValues();
