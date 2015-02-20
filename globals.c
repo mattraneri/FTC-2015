@@ -12,3 +12,4 @@ static int ImotorBR;
 static int IservoCollection;
 static int IservoLatch;
 static int IservoArm;
+static int IservoCollectionSetup;
