@@ -1,9 +1,10 @@
 #pragma config(Hubs,  S1, HTMotor,  HTServo,  HTMotor,  HTMotor)
+#pragma config(Sensor, S1,     ,               sensorI2CMuxController)
 #pragma config(Sensor, S2,     IR,             sensorHiTechnicIRSeeker1200)
 #pragma config(Sensor, S3,     Sonar,          sensorSONAR)
 #pragma config(Motor,  mtr_S1_C1_1,     motorFL,       tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C1_2,     motorBL,       tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C3_1,     motorLiftLeft, tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C3_1,     motorLiftLeft, tmotorTetrix, openLoop, reversed)
 #pragma config(Motor,  mtr_S1_C3_2,     motorLiftRight, tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_1,     motorFR,       tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_2,     motorBR,       tmotorTetrix, openLoop, reversed)
@@ -48,9 +49,11 @@ void initializeRobot()
 
 	threshold = 10;
 
-	IservoCollection = 127;
+	servo[servoCollection] = 127;
 
-	IservoArm = 127;
+	servo[servoCollectionSetup] = 115;
+
+	servo[servoArm] = 127;
 
 
 }
@@ -61,10 +64,6 @@ void LoadValues() {
 	motor[motorFR] = ImotorFR;
 	motor[motorBR] = ImotorBR;
 	motor[motorBL] = ImotorBL;
-	servo[servoLatch] = IservoLatch;
-	servo[servoCollection] = IservoCollection;
-	servo[servoArm] = IservoArm;
-	servo[servoCollectionSetup] = IservoCollectionSetup;
 }
 
 
@@ -88,23 +87,46 @@ void updateValues() {
 		ImotorBR = 0;
 	}
 
-	if(abs(joystick.joy2_y1) > threshold) {
-		writeDebugStreamLine("%i", IservoCollectionSetup);
-		IservoCollectionSetup += (abs(joystick.joy2_y1) / (joystick.joy2_y1));
-	}
-
 
 	//Collection system rotation
 	if(joy1Btn(4) && wasPressed4 == false) {
 		wasPressed4 = true;
-		if(IservoCollection == 255) {
-			IservoCollection = 127;
+		if(servo[servoCollection] == 255) {
+			servo[servoCollection] = 127;
 		} else {
-			IservoCollection = 255;
+			servo[servoCollection] = 255;
 		}
 	}
 	if(!joy1Btn(4) && wasPressed4 == true) {
 		wasPressed4 = false;
+	}
+	int a = joystick.joy2_TopHat;
+
+	/*if(a == -1) {
+		motor[motorLiftLeft] = 0;
+		motor[motorLiftRight] = 0;
+	} else if(a == 0) {
+		motor[motorLiftLeft] = 80;
+		motor[motorLiftRight] = 80;
+	} else if(a == 4) {
+		motor[motorLiftLeft] = -80;
+		motor[motorLiftRight] = -80;
+		//writeDebugStreamLine("a = 4");
+	}*/
+	//writeDebugStreamLine("%i", a);
+	switch(a) {
+		case -1:
+			motor[motorLiftLeft] = 0;
+			motor[motorLiftRight] = 0;
+			break;
+		case 0:
+			motor[motorLiftLeft] = 80;
+			motor[motorLiftRight] = 80;
+			break;
+		case 4:
+			motor[motorLiftLeft] = -80;
+			motor[motorLiftRight] = -80;
+			break;
 	}
 }
 
